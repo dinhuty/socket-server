@@ -8,7 +8,7 @@ app.get("/", (req, res) => {
     res.send('HELLO')
 })
 const socketServer = (server) => {
-    const io = new Server(server, { cors: "https://uty-chat.vercel.app/" });
+    const io = new Server(server, { cors: "http://localhost:5173/" });
     let onlineUsers = []
     io.on("connection", (socket) => {
         console.log("new connection", socket.id)
@@ -40,6 +40,11 @@ const socketServer = (server) => {
                 });
                 console.log("done")
             }
+        })
+        socket.on("blockChat", ({ idBlock, idChatCurrent }) => {
+            console.log(idBlock)
+            const id = onlineUsers.find((user) => user.userId === idBlock)?.socketId
+            io.to(id).emit("hasBlock", idChatCurrent)
         })
         socket.on("disconnect", () => {
             onlineUsers = onlineUsers.filter(user => user.socketId !== socket.id)
